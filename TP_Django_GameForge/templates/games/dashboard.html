@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block title %}Mon Tableau de Bord - GameForge{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <h2><i class="bi bi-grid"></i> Mon Tableau de Bord</h2>
+        <p class="text-muted">Gérez tous vos concepts de jeux vidéo</p>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="text-primary">{{ stats.total_games }}</h3>
+                <p class="mb-0">Jeux Créés</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="text-success">{{ stats.public_games }}</h3>
+                <p class="mb-0">Publics</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="text-warning">{{ stats.private_games }}</h3>
+                <p class="mb-0">Privés</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="text-info">{{ stats.total_views }}</h3>
+                <p class="mb-0">Vues Totales</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Action Buttons -->
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <a href="{% url 'games:create' %}" class="btn btn-primary me-2">
+            <i class="bi bi-plus-circle"></i> Créer un Nouveau Jeu
+        </a>
+        <a href="{% url 'games:create_random' %}" class="btn btn-outline-light">
+            <i class="bi bi-shuffle"></i> Génération Aléatoire
+        </a>
+    </div>
+</div>
+
+<!-- My Games List -->
+<div class="row">
+    <div class="col-lg-12">
+        <h4 class="mb-3">Mes Jeux</h4>
+    </div>
+</div>
+
+<div class="row">
+    {% for game in games %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                {% if game.main_image %}
+                    <img src="{{ game.main_image.url }}" class="game-card-img" alt="{{ game.title }}">
+                {% else %}
+                    <div class="game-card-img bg-secondary d-flex align-items-center justify-content-center">
+                        <i class="bi bi-image text-muted" style="font-size: 4rem;"></i>
+                    </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">
+                        {{ game.title }}
+                        {% if not game.is_public %}
+                            <i class="bi bi-lock text-warning" title="Privé"></i>
+                        {% endif %}
+                    </h5>
+                    <p class="card-text">
+                        <span class="badge badge-custom">{{ game.genre }}</span>
+                        <span class="badge bg-secondary">{{ game.theme }}</span>
+                    </p>
+                    <p class="card-text small text-muted">
+                        <i class="bi bi-calendar"></i> {{ game.created_at|date:"d/m/Y" }}
+                        <br>
+                        <i class="bi bi-eye"></i> {{ game.views_count }} vues
+                    </p>
+                </div>
+                <div class="card-footer bg-transparent border-top-0">
+                    <a href="{% url 'games:detail' game.pk %}" class="btn btn-sm btn-primary">
+                        <i class="bi bi-eye"></i> Voir
+                    </a>
+                    <a href="{% url 'games:edit' game.pk %}" class="btn btn-sm btn-outline-light">
+                        <i class="bi bi-pencil"></i> Modifier
+                    </a>
+                    <a href="{% url 'games:delete' game.pk %}" class="btn btn-sm btn-outline-danger">
+                        <i class="bi bi-trash"></i> Supprimer
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i> Vous n'avez pas encore créé de jeu. 
+                <a href="{% url 'games:create' %}" class="alert-link">Créez votre premier concept !</a>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

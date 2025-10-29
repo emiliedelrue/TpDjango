@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ game.title }} - GameForge{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <!-- Header -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h2 class="mb-3">{{ game.title }}</h2>
+                        <p>
+                            <span class="badge badge-custom me-2">{{ game.genre }}</span>
+                            <span class="badge bg-secondary me-2">{{ game.theme }}</span>
+                            {% if not game.is_public %}
+                                <span class="badge bg-warning"><i class="bi bi-lock"></i> Privé</span>
+                            {% endif %}
+                        </p>
+                        <p class="text-muted">
+                            <i class="bi bi-person"></i> Créé par <strong>{{ game.creator.username }}</strong>
+                            <br>
+                            <i class="bi bi-calendar"></i> {{ game.created_at|date:"d F Y" }}
+                            <br>
+                            <i class="bi bi-eye"></i> {{ game.views_count }} vues
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        {% if user.is_authenticated %}
+                            <button class="btn btn-outline-light mb-2" id="favoriteBtn" data-game-id="{{ game.pk }}">
+                                <i class="bi bi-heart{% if is_favorited %}-fill text-danger{% endif %}"></i>
+                                <span id="favoriteText">{% if is_favorited %}Retirer des{% else %}Ajouter aux{% endif %} favoris</span>
+                            </button>
+                        {% endif %}
+                        {% if user == game.creator %}
+                            <br>
+                            <a href="{% url 'games:edit' game.pk %}" class="btn btn-sm btn-outline-light">
+                                <i class="bi bi-pencil"></i> Modifier
+                            </a>
+                            <a href="{% url 'games:delete' game.pk %}" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-trash"></i> Supprimer
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Image -->
+        {% if game.main_image %}
+        <div class="card mb-4">
+            <img src="{{ game.main_image.url }}" class="card-img-top" alt="{{ game.title }}" style="max-height: 500px; object-fit: cover;">
+        </div>
+        {% endif %}
+
+        <!-- Universe -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4><i class="bi bi-globe"></i> Univers</h4>
+            </div>
+            <div class="card-body">
+                <p>{{ game.universe_description|linebreaks }}</p>
+                {% if game.keywords %}
+                <p class="text-muted">
+                    <strong>Mots-clés:</strong> {{ game.keywords }}
+                </p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Story -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4><i class="bi bi-book"></i> Histoire</h4>
+            </div>
+            <div class="card-body">
+                <h5>Acte 1</h5>
+                <p>{{ game.story_act1|linebreaks }}</p>
+                <hr>
+                <h5>Acte 2</h5>
+                <p>{{ game.story_act2|linebreaks }}</p>
+                <hr>
+                <h5>Acte 3</h5>
+                <p>{{ game.story_act3|linebreaks }}</p>
+            </div>
+        </div>
+
+        <!-- Characters -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4><i class="bi bi-people"></i> Personnages</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for character in characters %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card bg-dark">
+                            {% if character.image %}
+                            <img src="{{ character.image.url }}" class="card-img-top" alt="{{ character.name }}" style="height: 250px; object-fit: cover;">
+                            {% endif %}
+                            <div class="card-body">
+                                <h5>{{ character.name }}</h5>
+                                <p>
+                                    <span class="badge bg-info">{{ character.character_class }}</span>
+                                    <span class="badge bg-secondary">{{ character.role }}</span>
+                                </p>
+                                <p class="small"><strong>Background:</strong> {{ character.background|truncatewords:30 }}</p>
+                                <p class="small"><strong>Gameplay:</strong> {{ character.gameplay_description|truncatewords:20 }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Locations -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4><i class="bi bi-geo-alt"></i> Lieux Emblématiques</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for location in locations %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card bg-dark">
+                            {% if location.image %}
+                            <img src="{{ location.image.url }}" class="card-img-top" alt="{{ location.name }}" style="height: 250px; object-fit: cover;">
+                            {% endif %}
+                            <div class="card-body">
+                                <h5>{{ location.name }}</h5>
+                                <p class="small">{{ location.description }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('favoriteBtn')?.addEventListener('click', function() {
+    const gameId = this.dataset.gameId;
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    fetch(`/game/${gameId}/toggle-favorite/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrftoken,
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const icon = this.querySelector('i');
+            const text = this.querySelector('#favoriteText');
+            
+            if (data.is_favorited) {
+                icon.classList.remove('bi-heart');
+                icon.classList.add('bi-heart-fill', 'text-danger');
+                text.textContent = 'Retirer des favoris';
+            } else {
+                icon.classList.remove('bi-heart-fill', 'text-danger');
+                icon.classList.add('bi-heart');
+                text.textContent = 'Ajouter aux favoris';
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

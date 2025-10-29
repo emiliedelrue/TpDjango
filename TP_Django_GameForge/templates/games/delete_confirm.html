@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Supprimer {{ game.title }} - GameForge{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card">
+            <div class="card-header bg-danger">
+                <h3 class="mb-0 text-white">
+                    <i class="bi bi-exclamation-triangle"></i> Confirmation de Suppression
+                </h3>
+            </div>
+            <div class="card-body">
+                <h4>Êtes-vous sûr de vouloir supprimer "{{ game.title }}" ?</h4>
+                <p class="text-muted">
+                    Cette action est irréversible. Toutes les données associées (personnages, lieux, images) seront également supprimées.
+                </p>
+                
+                <div class="alert alert-warning">
+                    <i class="bi bi-info-circle"></i> 
+                    <strong>Attention:</strong> Cette opération ne peut pas être annulée.
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Oui, supprimer définitivement
+                    </button>
+                    <a href="{% url 'games:detail' game.pk %}" class="btn btn-outline-light">
+                        Non, annuler
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

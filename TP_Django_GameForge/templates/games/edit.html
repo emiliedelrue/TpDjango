@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Modifier {{ game.title }} - GameForge{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">
+                    <i class="bi bi-pencil"></i> Modifier le Jeu
+                </h3>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.title.id_for_label }}" class="form-label">
+                            Titre du Jeu
+                        </label>
+                        {{ form.title }}
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            {{ form.is_public }}
+                            <label class="form-check-label" for="{{ form.is_public.id_for_label }}">
+                                Rendre ce jeu public
+                            </label>
+                        </div>
+                        <small class="text-muted">
+                            Les jeux publics sont visibles par tous les utilisateurs
+                        </small>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle"></i> Enregistrer les modifications
+                    </button>
+                    <a href="{% url 'games:detail' game.pk %}" class="btn btn-outline-light">
+                        Annuler
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

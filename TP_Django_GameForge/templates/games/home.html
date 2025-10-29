@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block title %}Accueil - GameForge{% endblock %}
+
+{% block content %}
+<div class="row mb-5">
+    <div class="col-lg-12 text-center">
+        <h1 class="display-4 mb-3">
+            <i class="bi bi-stars text-warning"></i> GameForge
+        </h1>
+        <p class="lead text-muted">Créez des concepts de jeux vidéo originaux grâce à l'IA</p>
+        {% if not user.is_authenticated %}
+            <a href="{% url 'accounts:signup' %}" class="btn btn-primary btn-lg me-2">
+                <i class="bi bi-rocket"></i> Commencer
+            </a>
+        {% else %}
+            <a href="{% url 'games:create' %}" class="btn btn-primary btn-lg me-2">
+                <i class="bi bi-plus-circle"></i> Créer un Jeu
+            </a>
+            <a href="{% url 'games:create_random' %}" class="btn btn-outline-light btn-lg">
+                <i class="bi bi-shuffle"></i> Mode Aléatoire
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Search Form -->
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-4">
+                        {{ form.query }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form.genre }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form.theme }}
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search"></i> Rechercher
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Games Grid -->
+<div class="row">
+    <div class="col-lg-12">
+        <h3 class="mb-4">
+            <i class="bi bi-grid-3x3-gap"></i> Galerie des Concepts
+        </h3>
+    </div>
+</div>
+
+<div class="row">
+    {% for game in games %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                {% if game.main_image %}
+                    <img src="{{ game.main_image.url }}" class="game-card-img" alt="{{ game.title }}">
+                {% else %}
+                    <div class="game-card-img bg-secondary d-flex align-items-center justify-content-center">
+                        <i class="bi bi-image text-muted" style="font-size: 4rem;"></i>
+                    </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ game.title }}</h5>
+                    <p class="card-text">
+                        <span class="badge badge-custom">{{ game.genre }}</span>
+                        <span class="badge bg-secondary">{{ game.theme }}</span>
+                    </p>
+                    <p class="card-text text-muted small">
+                        <i class="bi bi-person"></i> par {{ game.creator.username }}
+                    </p>
+                    <p class="card-text small">
+                        <i class="bi bi-eye"></i> {{ game.views_count }} vues
+                    </p>
+                </div>
+                <div class="card-footer bg-transparent border-top-0">
+                    <a href="{% url 'games:detail' game.pk %}" class="btn btn-sm btn-primary w-100">
+                        <i class="bi bi-eye"></i> Voir les détails
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i> Aucun jeu trouvé. Soyez le premier à créer un concept !
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}
